@@ -1,0 +1,31 @@
+# Project: OsmanAslancan170519024-Final
+# Makefile created by Dev-C++ 5.11
+
+CPP      = g++.exe -D__DEBUG__
+CC       = gcc.exe -D__DEBUG__
+WINDRES  = windres.exe
+OBJ      = SatrancOsman/main.o SatrancOsman/Game.o
+LINKOBJ  = SatrancOsman/main.o SatrancOsman/Game.o
+LIBS     = -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -L"D:/Alazul/Desktop/test/SDL2_image-2.0.5/x86_64-w64-mingw32/lib" -L"Dependencies/ForDevCpp/SDL2_image-2.0.5/x86_64-w64-mingw32/lib" -L"Dependencies/ForDevCpp/SDL2-2.0.12/x86_64-w64-mingw32/lib" -mwindows -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -g3
+INCS     = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include" -I"Dependencies/ForDevCpp/SDL2-2.0.12/x86_64-w64-mingw32/include/SDL2" -I"Dependencies/ForDevCpp/SDL2_image-2.0.5/x86_64-w64-mingw32/include/SDL2"
+CXXINCS  = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include/c++" -I"Dependencies/ForDevCpp/SDL2-2.0.12/x86_64-w64-mingw32/include/SDL2" -I"Dependencies/ForDevCpp/SDL2_image-2.0.5/x86_64-w64-mingw32/include/SDL2"
+BIN      = SatrancOsman/OsmanAslancan170519024-Final.exe
+CXXFLAGS = $(CXXINCS) -g3 -std=c++11
+CFLAGS   = $(INCS) -g3
+RM       = rm.exe -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(BIN) all-after
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS)
+
+SatrancOsman/main.o: SatrancOsman/main.cpp
+	$(CPP) -c SatrancOsman/main.cpp -o SatrancOsman/main.o $(CXXFLAGS)
+
+SatrancOsman/Game.o: SatrancOsman/Game.cpp
+	$(CPP) -c SatrancOsman/Game.cpp -o SatrancOsman/Game.o $(CXXFLAGS)
