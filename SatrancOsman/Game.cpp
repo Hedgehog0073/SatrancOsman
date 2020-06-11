@@ -8,58 +8,58 @@ void Game::Init()
 	//SDL kutuphanelerini init ediyorum.
 	SDL_Init(SDL_INIT_EVERYTHING);
 	IMG_Init(IMG_INIT_PNG);
-	//Pencere ve Renderer oluşturuyorum
+	//Pencere ve Renderer olusturuyorum
 	Window = SDL_CreateWindow("Chess by Osman v4", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WindowWidth, WindowHeight, NULL);
 	Renderer = SDL_CreateRenderer(Window, -1, 0);
 
-	//Mouse için focus windowu set ediyorum.
+	//Mouse icin focus windowu set ediyorum.
 	SDL_SetWindowInputFocus(Window);
-	//Arka Plan Rengini ayarlıyorum.
+	//Arka Plan Rengini ayarliyorum.
 	SDL_SetRenderDrawColor(Renderer, 0xEA, 0xD7, 0xC6, 255);
 
-	//Satranc tahtasını init ediyorum. Yani tum gereken textureları diskten bellege yukluyor.
+	//Satranc tahtasini init ediyorum. Yani tum gereken texturelari diskten bellege yukluyor.
 	ChessBoard.Init(Renderer);
-	//Satranç tahtasını render ediyorum.
+	//Satranc tahtasini render ediyorum.
 	
    
 	
 	ChessBoard.DrawBoard(this);
 
-	//Tasları olusturup tahtaya diziyorum.
+	//Taslari olusturup tahtaya diziyorum.
 	Tools::AlignPieces(this);
 
-	//Renderlediğim şeyi görmek için windowa yansıtıyorum.
+	//Renderledigim seyi gormek icin windowa yansitiyorum.
 	SDL_RenderPresent(Renderer);
 }
 
 void Game::HandleEvents()
 {
-	/*Bu fonksiyon 3 aşamadan oluşuyor.
+	/*Bu fonksiyon 3 asamadan olusuyor.
 	1-Girdi al(Input)
 	2-Tepki ver Hesapla(Calculate)
-	3-Çiz(Render)
-	oyun bitene kadar bu aşamaları tekrarlıyor.
+	3-Ciz(Render)
+	oyun bitene kadar bu asamalari tekrarliyor.
 	*/
 
-	SDL_Event Event;//input için event structı
+	SDL_Event Event;//input icin event structi
 
 	while (Running)
 	{
 
-		Uint64 StartTime = SDL_GetPerformanceCounter(); // Oyunun FPS'ini yani saniye başına kare sayısını hesaplamak için.
+		Uint64 StartTime = SDL_GetPerformanceCounter(); // Oyunun FPS'ini yani saniye basina kare sayisini hesaplamak icin.
 
-		if (SDL_PollEvent(&Event))//PollEvent ile input alıyoruz.
+		if (SDL_PollEvent(&Event))//PollEvent ile input aliyoruz.
 		{
 			int x, y;
-			switch (Event.type)//Eventin tipine göre switch yapıyoruz.
+			switch (Event.type)//Eventin tipine gore switch yapiyoruz.
 			{
-			case(SDL_QUIT)://Pencerenin Kapatma tuşuna basıldığında kapatmak için.
+			case(SDL_QUIT)://Pencerenin Kapatma tusuna basildiginda kapatmak icin.
 				Running = false;
 				break;
-			case(SDL_KEYDOWN)://Klavyede eğer bir tuşa basılırsa
+			case(SDL_KEYDOWN)://Klavyede eger bir tusa basilirsa
 				switch (Event.key.keysym.sym)
 				{
-				case(SDLK_ESCAPE):// Basılan tuş escape ise programı kapatıyoruz.
+				case(SDLK_ESCAPE):// Basilan tus escape ise programi kapatiyoruz.
 					Running = false;
 					break;
 				case(SDLK_m):
@@ -67,13 +67,13 @@ void Game::HandleEvents()
 					break;
 				}
 				break;
-			case(SDL_MOUSEBUTTONDOWN)://kullanıcı mouseye bastığında
-				//Mousenin Pencerenin sol üstüne göre konumunu input ediyoruz.
+			case(SDL_MOUSEBUTTONDOWN)://kullanici mouseye bastiginda
+				//Mousenin Pencerenin sol ustune gore konumunu input ediyoruz.
 				SDL_GetMouseState(&x, &y);
-				// Kare boyunuta bölerek mousenin kare olarak konumunu buluyorum.
+				// Kare boyunuta bolerek mousenin kare olarak konumunu buluyorum.
 				x = x / RectSize;
 				y = y / RectSize;
-				//Daha sonra mousenin konumunda olan bir taş arıyorum ve bulduğumda onun indexini işaretliyorum.
+				//Daha sonra mousenin konumunda olan bir tas ariyorum ve buldugumda onun indexini isaretliyorum.
 				for (int i = 0; i < PieceCount; i++)
 				{
 					if (PieceC.Pieces[i]->IsDestroyed == true)
@@ -82,23 +82,23 @@ void Game::HandleEvents()
 
 					if (PieceC.Pieces[i]->Pos.x == x && PieceC.Pieces[i]->Pos.y == y && PieceC.Pieces[i]->Color == Turn)
 					{
-						PieceC.Pieces[i]->IsFloating = true;//Kullanıcının Mouse konumunda taşı renderlemek için
+						PieceC.Pieces[i]->IsFloating = true;//Kullanicinin Mouse konumunda tasi renderlemek icin
 						HoldItemIndex = i;
 					}
 				}
 				break;
 
-			case(SDL_MOUSEBUTTONUP)://Kullanıcı Mouseyi basıp bıraktığında
-				if (HoldItemIndex != -1)//Eğer bastığında tuttuğu taş var ise
+			case(SDL_MOUSEBUTTONUP)://Kullanici Mouseyi basip biraktiginda
+				if (HoldItemIndex != -1)//Eger bastiginda tuttugu tas var ise
 				{
 
-					PieceC.Pieces[HoldItemIndex]->IsFloating = false;// Artık mouse konumunda taşı renderlememek için.
-					//Mouse konumunu alıyorum.
+					PieceC.Pieces[HoldItemIndex]->IsFloating = false;// Artik mouse konumunda tasi renderlememek icin.
+					//Mouse konumunu aliyorum.
 					SDL_GetMouseState(&x, &y);
 					x = x / RectSize;
 					y = y / RectSize;
 
-					//Eğer yapılan hareket başarılı ise sırayı değiştiriyorum.
+					//Eger yapilan hareket basarili ise sirayi degistiriyorum.
 					if (PieceC.Pieces[HoldItemIndex]->Move(TilePos(x, y), this) == Move_Sucsess)
 						if (Turn == Side_White)
 							Turn = Side_Black;
@@ -106,7 +106,7 @@ void Game::HandleEvents()
 							Turn = Side_White;
 
 
-					HoldItemIndex = -1;// İşaretlediğim taşın işaretini kaldırıyorum.
+					HoldItemIndex = -1;// Isaretledigim tasin isaretini kaldiriyorum.
 
 				}
 				break;
@@ -115,20 +115,20 @@ void Game::HandleEvents()
 			}
 
 		}
-		//Tüm input işlemleri tamamlandıktan sonra rendere başlıyorum
+		//Tum input islemleri tamamlandiktan sonra rendere basliyorum
 		Render();
 
 
-		//Burası FPS'i sabit tutmak için.
-		/*Örneğin oyunumun FPS'sini eğer 100 FPS olarak sabit tutmak istiyorsam:
-		kod başladığında cycle sayısını almıştım zaten şimdi ise kod bittiği zaman cycle sayısını alıyorum.
-		Daha sonra sondaki cycledan baştaki cycleyi çıkararak Delta cycleyi buluyorum.
-		Daha sonra DeltaCycleyi İşlemci hızına bölerek baştan sona geçen saniyeyi buluyorum ve buda DeltaTime oluyor.
-		Delta time oyunlarda oyunun işlemcinin hızına göre değilde zamana göre çalışması istendiğinde kullanılıyor.
-		En sonda DeltaTimeyi 1000 ile çarparak ms birimine çeviriyorum.
-		Oyunda istediğim FPS 100 olduğundan 1 saniyede 100 frame renderlemek istiyorsak ozaman 1 frame için
-		1s/100frame kadar zaman harcalamalıyız saniyeyide ms'e çevirirsek 1000ms/100frame ozaman 1 frame için 10ms harcamamız
-		lazım. bunun içinde oyunu 10-(geçen zaman) kadar uyutuyoruz.
+		//Burasi FPS'i sabit tutmak icin.
+		/*Ornegin oyunumun FPS'sini eger 100 FPS olarak sabit tutmak istiyorsam:
+		kod basladiginda cycle sayisini almistim zaten simdi ise kod bittigi zaman cycle sayisini aliyorum.
+		Daha sonra sondaki cycledan bastaki cycleyi cikararak Delta cycleyi buluyorum.
+		Daha sonra DeltaCycleyi Islemci hizina bolerek bastan sona gecen saniyeyi buluyorum ve buda DeltaTime oluyor.
+		Delta time oyunlarda oyunun islemcinin hizina gore degilde zamana gore calismasi istendiginde kullaniliyor.
+		En sonda DeltaTimeyi 1000 ile carparak ms birimine ceviriyorum.
+		Oyunda istedigim FPS 100 oldugundan 1 saniyede 100 frame renderlemek istiyorsak ozaman 1 frame icin
+		1s/100frame kadar zaman harcalamaliyiz saniyeyide ms'e cevirirsek 1000ms/100frame ozaman 1 frame icin 10ms harcamamiz
+		lazim. bunun icinde oyunu 10-(gecen zaman) kadar uyutuyoruz.
 		*/
 
 		Uint64 EndTime = SDL_GetPerformanceCounter();
@@ -141,8 +141,8 @@ void Game::HandleEvents()
 		}
 		EndTime = SDL_GetPerformanceCounter();
 		DeltaTime = (double)((EndTime - StartTime) * 1000) / (double)SDL_GetPerformanceFrequency();
-		/*SDL_Log("Time elapsed for frame is %f", DeltaTime); // 1 Kare için geçen zaman ms olarak.
-		SDL_Log("FPS: %f", 1000/DeltaTime);// 1 saniyede geçen kare
+		/*SDL_Log("Time elapsed for frame is %f", DeltaTime); // 1 Kare icin gecen zaman ms olarak.
+		SDL_Log("FPS: %f", 1000/DeltaTime);// 1 saniyede gecen kare
 		SD_Log("%f", DeltaTime);*/
 
 
@@ -186,13 +186,13 @@ void Game::HandleEvents()
 }
 void Game::Render()
 {
-	//Bir önceki frameden kalan şeyleri ekrandan temizliyorum.
+	//Bir onceki frameden kalan seyleri ekrandan temizliyorum.
 	SDL_RenderClear(Renderer);
-	//Satranç Tahtasını çiziyorum.
+	//Satranc Tahtasini ciziyorum.
 	ChessBoard.DrawBoard(this);
-	//Taşların hepsini konumlarında renderliyorum
+	//Taslarin hepsini konumlarinda renderliyorum
 	PieceC.RenderAll(this);
-	//Renderde olan şeyleri ekrana yansıtıyorum.
+	//Renderde olan seyleri ekrana yansitiyorum.
 	SDL_RenderPresent(Renderer);
 }
 
@@ -211,7 +211,7 @@ TilePos::TilePos() {}
 
 Piece::Piece(Game* game)
 {
-	//taşı arrarye yerleştirmek için.
+	//tasi arrarye yerlestirmek icin.
 	PieceIndex = game->PieceCount++;
 	game->PieceC.Pieces[PieceIndex] = this;
 
@@ -222,22 +222,22 @@ void PieceController::RenderAll(Game* game)
 	int FloatingPieceIndex = -1;
 	for (int i = 0; i < game->PieceCount; i++)
 	{
-		// Eğer taş yok olmuş ise renderlemiyorum.
+		// Eger tas yok olmus ise renderlemiyorum.
 		if (game->PieceC.Pieces[i]->IsDestroyed == true)
 			continue;
 
-		//Eğer taş kullanıcı tarafındantutuluyorsa burda renderlemiyorum.
-		//Çünkü kullanıcının tuttuğu taşın diğer taşların üstünde gözükmesini istiyorum bunun içinde kullanıcının tuttuğu taşı
-		// en son renderleyeceğim.
+		//Eger tas kullanici tarafindantutuluyorsa burda renderlemiyorum.
+		//Cunku kullanicinin tuttugu tasin diger taslarin ustunde gozukmesini istiyorum bunun icinde kullanicinin tuttugu tasi
+		// en son renderleyecegim.
 		if (Pieces[i]->IsFloating)
 		{
 			FloatingPieceIndex = i;
 			continue;
 		}
-		//taşa Renderlenmesini söylüyorum.
+		//tasa Renderlenmesini soyluyorum.
 		Pieces[i]->Render(game->Renderer);
 	}
-	//Daha öncede dediğim gibi taşın diğer taşların üstünde gözükmesi için en son renderliyorum.
+	//Daha oncede dedigim gibi tasin diger taslarin ustunde gozukmesi icin en son renderliyorum.
 	if (FloatingPieceIndex != -1)
 	{
 		Pieces[FloatingPieceIndex]->Render(game->Renderer);
@@ -251,15 +251,15 @@ void PieceController::RenderAll(Game* game)
 void Board::Init(SDL_Renderer* renderer)
 {
 
-	// Burada MoveMap ve DangerMap için kullandığım debug textureleri yüklüyorum.
-	// Bunları kullanmak için Game.h dosyasındaki MOVEMAP veya DANGERMAP definelarını comment out yapın.
+	// Burada MoveMap ve DangerMap icin kullandigim debug textureleri yukluyorum.
+	// Bunlari kullanmak icin Game.h dosyasindaki MOVEMAP veya DANGERMAP definelarini comment out yapin.
 	Tools::CreateTexture(renderer, "Images/NewBlackRect.png", &Rects[0]);
 	Tools::CreateTexture(renderer, "Images/NewWhiteRect.png", &Rects[1]);
 	Tools::CreateTexture(renderer, "Images/WhiteExclamation.png", &Debugs[0]);
 	Tools::CreateTexture(renderer, "Images/BlackExclamation.png", &Debugs[1]);
 	Tools::CreateTexture(renderer, "Images/RedExclamation.png", &Debugs[2]);
 
-	//Tahtanın harf ve yazıları burada SDL_TTF kullanabilirdim fakat 
+	//Tahtanin harf ve yazilari burada SDL_TTF kullanabilirdim fakat 
 	//yazacagim yazi az oldugu icin ekstra bir kutuphane eklemek istemedim.
 	Tools::CreateTexture(renderer, "Images/A.png", &Letters[0]);
 	Tools::CreateTexture(renderer, "Images/B.png", &Letters[1]);
@@ -280,14 +280,14 @@ void Board::Init(SDL_Renderer* renderer)
 	Tools::CreateTexture(renderer, "Images/8.png", &Numbers[7]);
 
 
-	// Bildirimler için
+	// Bildirimler icin
 	Tools::CreateTexture(renderer, "Images/LogWhite.png", &Sides[0]);
 	Tools::CreateTexture(renderer, "Images/LogBlack.png", &Sides[1]);
 
 	Tools::CreateTexture(renderer, "Images/LogCheck.png", &Condutions[0]);
 	Tools::CreateTexture(renderer, "Images/LogMate.png", &Condutions[1]);
 
-	//Kullanıcıya hareket ipucusu vermek için.
+	//Kullaniciya hareket ipucusu vermek icin.
 
 	Tools::CreateTexture(renderer, "Images/CanMove.png", &Float[0]);
 	Tools::CreateTexture(renderer, "Images/MousePos.png", &Float[1]);
@@ -302,13 +302,13 @@ void Board::DrawBoard(Game* game)
 	{
 		for (int i = 0; i < 8; i++)
 		{
-			//Satranç tahtasını bir matris olarak düşünürsek eğer matrisnin x ve y bileşenlerinin toplamı çift ise beyaz
-			//Tek ise siyah olmalı bunu tam tersinide yapabilirsiniz.
+			//Satranc tahtasini bir matris olarak dusunursek eger matrisnin x ve y bilesenlerinin toplami cift ise beyaz
+			//Tek ise siyah olmali bunu tam tersinide yapabilirsiniz.
 			SDL_Rect Rect{ i * RectSize,j * RectSize,RectSize,RectSize };
 			SDL_RenderCopy(game->Renderer, this->Rects[(i + j) % 2], 0, &Rect);
 
 			// MoveMap ve DangerMapi satranca yansitmak icin. Debug yaparken COOK yardimci oldu.
-			// aktive etmek için Game.h dosyasındaki MOVEMAP  veya DangerMap definelerını comment out yapın.
+			// aktive etmek icin Game.h dosyasindaki MOVEMAP  veya DangerMap definelerini comment out yapin.
 #ifdef MOVEMAP
 
 
@@ -344,10 +344,10 @@ void Board::DrawBoard(Game* game)
 
 		}
 	}
-	// Kullanıcıya ipucu vermek için.
+	// Kullaniciya ipucu vermek icin.
 	if (game->HoldItemIndex != -1)
 	{
-		//Kullanıcının tuttuğu taşın Movemapını oyuna yansıtıyoruz.
+		//Kullanicinin tuttugu tasin Movemapini oyuna yansitiyoruz.
 		for (int j = 0; j < 8; j++)
 			for (int i = 0; i < 8; i++)
 				if (game->PieceC.Pieces[game->HoldItemIndex]->MoveMap[j][i])
@@ -355,20 +355,20 @@ void Board::DrawBoard(Game* game)
 					SDL_Rect Rect{ i * RectSize,j * RectSize,RectSize,RectSize };
 					SDL_RenderCopy(game->Renderer, this->Float[0], 0, &Rect);
 				}
-		//Kullanıcının koyduğu taşın nereye gideceğini göstermek için Mouseposisyonunu tahtaya yansıtıyoruz.
+		//Kullanicinin koydugu tasin nereye gidecegini gostermek icin Mouseposisyonunu tahtaya yansitiyoruz.
 		int x, y;
 		SDL_GetMouseState(&x, &y);//Mouse input
-		//Mousenin Piksel pozisyonundan kurtulup Kare konumunu alıyoruz.
+		//Mousenin Piksel pozisyonundan kurtulup Kare konumunu aliyoruz.
 		x = x / RectSize;
 		y = y / RectSize;
-		// Mousenin bulunduğu kare konumunda textureyi renderliyoruz.
+		// Mousenin bulundugu kare konumunda textureyi renderliyoruz.
 		SDL_Rect Rect{ x * RectSize,y * RectSize,RectSize,RectSize };
 		SDL_RenderCopy(game->Renderer, this->Float[1], 0, &Rect);
 	}
 
 
 
-	//Satranc tahtasının Harf ve Sayılarını yazdırıyoruz.
+	//Satranc tahtasinin Harf ve Sayilarini yazdiriyoruz.
 	for (int i = 0; i < 8; i++)
 	{
 		int j = 8;
@@ -380,7 +380,7 @@ void Board::DrawBoard(Game* game)
 	}
 
 
-	//Eğer oyunda şah veya şahmat varsa sağ taraftaki log kısmına yazıdırıyoruz.
+	//Eger oyunda sah veya sahmat varsa sag taraftaki log kismina yazidiriyoruz.
 	SDL_Rect Rect{ 9 * RectSize,0,2 * RectSize,RectSize };
 	SDL_Rect Rect1{ 9 * RectSize,1 * RectSize,2 * RectSize,RectSize };
 	switch (game->Cond)
@@ -417,23 +417,23 @@ void Board::DrawBoard(Game* game)
 
 void Piece::Render(SDL_Renderer* renderer)
 {
-	// eğer taş şah ve tehtit altındaysa yani şah çekilmişse tehtit olarak şahın arkasındaki textureyi yüklüyorum.
+	// eger tas sah ve tehtit altindaysa yani sah cekilmisse tehtit olarak sahin arkasindaki textureyi yukluyorum.
 	if (Type == Type_King)
 	{
-		King* king = (King*)this;//Şaha özel değişkenlere ulaşmak için şah olduğunu bildiğim taşı şaha cast ediyorum.
-		if (king->IsCheck)//şah mı diye kontrol ediyorum.
+		King* king = (King*)this;//Saha ozel degiskenlere ulasmak icin sah oldugunu bildigim tasi saha cast ediyorum.
+		if (king->IsCheck)//sah mi diye kontrol ediyorum.
 		{
 			SDL_Rect Rect{ Pos.x * RectSize,Pos.y * RectSize,RectSize,RectSize };
 			SDL_RenderCopy(renderer, king->CheckTexture, 0, &Rect);
 
 		}
 	}
-	//Eğer kullanıcı taşı tutuyorsa mousenin olduğu yerde render ediyorum.
+	//Eger kullanici tasi tutuyorsa mousenin oldugu yerde render ediyorum.
 	if (IsFloating)
 	{
 		int x, y;
 		SDL_GetMouseState(&x, &y);
-		//burda mouse pozisyonunun eksenlerinden taş boyutunun yarısı çıkararak taşın mousenin tam taşın ortasında olmasını sağlıyorum.
+		//burda mouse pozisyonunun eksenlerinden tas boyutunun yarisi cikararak tasin mousenin tam tasin ortasinda olmasini sagliyorum.
 		x -= RectSize / 2;
 		y -= RectSize / 2;
 		SDL_Rect Rect{ x,y ,RectSize,RectSize };
@@ -443,7 +443,7 @@ void Piece::Render(SDL_Renderer* renderer)
 	}
 	else
 	{
-		//Eğer kullanıcı tarafından tutulmuyorsa bulunduğu yerde render ediyorum.
+		//Eger kullanici tarafindan tutulmuyorsa bulundugu yerde render ediyorum.
 		SDL_Rect Rect{ Pos.x * RectSize,Pos.y * RectSize,RectSize,RectSize };
 		SDL_RenderCopy(renderer, Texture, 0, &Rect);
 	}
@@ -454,7 +454,7 @@ void Piece::Render(SDL_Renderer* renderer)
 
 
 
-//consturctorlarda istenilen taş oluşturulup parametrede verilen Posisyonla kendi pozisyonu eşitleniyor.
+//consturctorlarda istenilen tas olusturulup parametrede verilen Posisyonla kendi pozisyonu esitleniyor.
 #pragma region PieceConstructors
 
 Pawn::Pawn(Game* game, TilePos pos, Side color, PieceType type)
@@ -566,14 +566,14 @@ MateDummy::MateDummy(Game* game, TilePos pos, Side, PieceType)
 }
 #pragma endregion
 
-//Bu bolgede her taşın kurallarına özel olarak haraket haritalarını hesaplıyoruz.
+//Bu bolgede her tasin kurallarina ozel olarak haraket haritalarini hesapliyoruz.
 #pragma region CalcMove
 
 void Piece::CalcMove(Game* game)
 {
 	//game->PieceC.CalcPiecePositions(game);
 
-	//Her hesaplamadan önce bu fonksiyonu çağırarak haritaları temizliyoruz.
+	//Her hesaplamadan once bu fonksiyonu cagirarak haritalari temizliyoruz.
 	for (int j = 0; j < 8; j++)
 		for (int i = 0; i < 8; i++)
 		{
@@ -583,7 +583,7 @@ void Piece::CalcMove(Game* game)
 }
 
 
-//Piyon için
+//Piyon icin
 void Pawn::CalcMove(Game* game)
 {
 	Piece::CalcMove(game);
@@ -591,7 +591,7 @@ void Pawn::CalcMove(Game* game)
 
 
 
-	//Bu taşın geçerken alma için uygun olup olmadığını ayarlıyoruz.
+	//Bu tasin gecerken alma icin uygun olup olmadigini ayarliyoruz.
 	if (CanCapturedWhilePassing == true && DontRepeat == true)
 	{
 		DontRepeat = false;
@@ -602,19 +602,19 @@ void Pawn::CalcMove(Game* game)
 	}
 
 
-	if (Color == ColorAtBottom)//Alttaki taraftaki piyonlar için
+	if (Color == ColorAtBottom)//Alttaki taraftaki piyonlar icin
 	{
-		if (Pos.y == 0)//eğer sona geldiyse promotion yap
+		if (Pos.y == 0)//eger sona geldiyse promotion yap
 		{
 			Promotion(game);
 		}
-		ReverseCheckSet(MoveMap, game->PieceC.PlaceMap, Pos.x + 1, Pos.y - 1);// Sağ üstte taş varsa true yap
-		ReverseCheckSet(MoveMap, game->PieceC.PlaceMap, Pos.x - 1, Pos.y - 1);// Sol üstte taş varsa true yap
+		ReverseCheckSet(MoveMap, game->PieceC.PlaceMap, Pos.x + 1, Pos.y - 1);// Sag ustte tas varsa true yap
+		ReverseCheckSet(MoveMap, game->PieceC.PlaceMap, Pos.x - 1, Pos.y - 1);// Sol ustte tas varsa true yap
 
 		//Bu bolgede Gecerken almayi kontrol ediyoruz.
-		//Eğer sağında taş varsa , karşı takımdansa ve türü piyonsa
+		//Eger saginda tas varsa , karsi takimdansa ve turu piyonsa
 #pragma region Capture While Passing
-		//eğer sağında taş var,karşı takımdan ve piyonsa
+		//eger saginda tas var,karsi takimdan ve piyonsa
 		if (Pos.x + 1 < 8 &&
 			game->PieceC.PlaceMap[Pos.y][Pos.x + 1].Color != Side_Empty &&
 			game->PieceC.PlaceMap[Pos.y][Pos.x + 1].Color != Color &&
@@ -622,7 +622,7 @@ void Pawn::CalcMove(Game* game)
 		{
 
 			Pawn* TestPawn = (Pawn*)game->PieceC.Pieces[game->PieceC.PlaceMap[Pos.y][Pos.x + 1].PieceID];
-			//Geçerken almaya uygun mu diye bak.
+			//Gecerken almaya uygun mu diye bak.
 			if (TestPawn->CanCapturedWhilePassing)
 			{
 				//Uygunsa CWP'yi doldur.
@@ -634,7 +634,7 @@ void Pawn::CalcMove(Game* game)
 
 
 		}
-		//aynı islem ustte.
+		//ayni islem ustte.
 		if (Pos.x - 1 >= 0 &&
 			game->PieceC.PlaceMap[Pos.y][Pos.x - 1].Color != Side_Empty &&
 			game->PieceC.PlaceMap[Pos.y][Pos.x - 1].Color != Color &&
@@ -655,24 +655,24 @@ void Pawn::CalcMove(Game* game)
 #pragma endregion
 
 
-		//eğer üstünde taş yoksa true yap varsa return. 1 ilerinde taş varsa 2 ilerisine gidemez.
+		//eger ustunde tas yoksa true yap varsa return. 1 ilerinde tas varsa 2 ilerisine gidemez.
 		CheckSetReturn(MoveMap, game->PieceC.PlaceMap, Pos.x, Pos.y - 1);
 		if (Bonus)
 		{
-			CheckSetReturn(MoveMap, game->PieceC.PlaceMap, Pos.x, Pos.y - 2);//bonusun var ise ve 2 ilerinde taş yoksa true yap.
+			CheckSetReturn(MoveMap, game->PieceC.PlaceMap, Pos.x, Pos.y - 2);//bonusun var ise ve 2 ilerinde tas yoksa true yap.
 		}
 
 	}
 	else
 	{
-		//Sona geldiysen rütbe atla.
+		//Sona geldiysen rutbe atla.
 		if (Pos.y == 7)
 		{
 			Promotion(game);
 		}
 
-		ReverseCheckSet(MoveMap, game->PieceC.PlaceMap, Pos.x + 1, Pos.y + 1);// Sağ altta taş varsa true yap
-		ReverseCheckSet(MoveMap, game->PieceC.PlaceMap, Pos.x - 1, Pos.y + 1);// Sol altta taş varsa true yap
+		ReverseCheckSet(MoveMap, game->PieceC.PlaceMap, Pos.x + 1, Pos.y + 1);// Sag altta tas varsa true yap
+		ReverseCheckSet(MoveMap, game->PieceC.PlaceMap, Pos.x - 1, Pos.y + 1);// Sol altta tas varsa true yap
 		//Gecerken Alma
 
 
@@ -731,7 +731,7 @@ void Pawn::Promotion(Game* game)
 	TilePos BishopPos = { 10,5 };
 	TilePos KnightPos = { 10,6 };
 
-	//Kullanıcıya sağ tarafta menu diziyoruz. Ekstra bir texture yüklemek istemediğim için oyundaki olan textureleri yansıttım.
+	//Kullaniciya sag tarafta menu diziyoruz. Ekstra bir texture yuklemek istemedigim icin oyundaki olan textureleri yansittim.
 	for (int i = 0; i < game->PieceCount; i++)
 	{
 		if (game->PieceC.Pieces[i]->Type == Type_Queen && game->PieceC.Pieces[i]->Color == Color)
@@ -768,11 +768,11 @@ void Pawn::Promotion(Game* game)
 	bool PickedPiece = false;
 	TilePos Mouse;
 	SDL_Event TempEvent;
-	while (!PickedPiece)//seçmediği sürece devam eden loop.
+	while (!PickedPiece)//secmedigi surece devam eden loop.
 	{
-		//Menuden bir şey seçtimi diye bakıyoruz.
-		//eğer seçtiyse bu taşın olduğu indexi seçtiği türden oluşturduğumuz bir taş ile değiştiriyoruz.
-		//PieceCount costructorda otomatik arttığı için bizde 1 tane düşürüyoruz.
+		//Menuden bir sey sectimi diye bakiyoruz.
+		//eger sectiyse bu tasin oldugu indexi sectigi turden olusturdugumuz bir tas ile degistiriyoruz.
+		//PieceCount costructorda otomatik arttigi icin bizde 1 tane dusuruyoruz.
 		if (SDL_PollEvent(&TempEvent) && TempEvent.type == SDL_MOUSEBUTTONDOWN)
 		{
 			SDL_GetMouseState(&Mouse.x, &Mouse.y);
@@ -810,30 +810,30 @@ void Pawn::Promotion(Game* game)
 				IsDestroyed = true;
 				PickedPiece = true;
 			}
-			SDL_Delay(10);//Menuyü beklerken bilgisyara çok yüklenmesin diye loopu kısıtlıyoruz.
+			SDL_Delay(10);//Menuyu beklerken bilgisyara cok yuklenmesin diye loopu kisitliyoruz.
 		}
 	}
 
 
 }
-//Kale için
+//Kale icin
 void Rook::CalcMove(Game* game)
 {
 	Piece::CalcMove(game);
 
-	//kalenin sağ, sol, yukarı ve aşağısını kontrol ediyoruz. 
-	//Eğer PlaceMapta orası boş ise true yapıyoruz. eğer dolu ve bizim takımdan ise direk işaretlemeden çıkıyoruz.
-	// eğer dolu ve karşı takımdansa işaretleyip çıkıyoruz. böylelikle karşı takımın taşlarını yiyebiliyoruz.
+	//kalenin sag, sol, yukari ve asagisini kontrol ediyoruz. 
+	//Eger PlaceMapta orasi bos ise true yapiyoruz. eger dolu ve bizim takimdan ise direk isaretlemeden cikiyoruz.
+	// eger dolu ve karsi takimdansa isaretleyip cikiyoruz. boylelikle karsi takimin taslarini yiyebiliyoruz.
 	int i = 1;
 	while (1)
 	{
-		CheckSetBreak(MoveMap, Pos.x, Pos.y - i);//up // Yukarı
+		CheckSetBreak(MoveMap, Pos.x, Pos.y - i);//up // Yukari
 		i++;
 	}
 	i = 1;
 	while (1)
 	{
-		CheckSetBreak(MoveMap, Pos.x, Pos.y + i);//down // Aşağı
+		CheckSetBreak(MoveMap, Pos.x, Pos.y + i);//down // Asagi
 		i++;
 	}
 	i = 1;
@@ -845,16 +845,16 @@ void Rook::CalcMove(Game* game)
 	i = 1;
 	while (1)
 	{
-		CheckSetBreak(MoveMap, Pos.x + i, Pos.y);//right // Sağ
+		CheckSetBreak(MoveMap, Pos.x + i, Pos.y);//right // Sag
 		i++;
 	}
 
 }
-//At için
+//At icin
 void Knight::CalcMove(Game* game)
 {
 	Piece::CalcMove(game);
-	// Eğer gidebileceği yer tahta içindeyse ve kendi takımından taş yok ise işaretliyoruz.
+	// Eger gidebilecegi yer tahta icindeyse ve kendi takimindan tas yok ise isaretliyoruz.
 	Set(MoveMap, Pos.x + 1, Pos.y - 2)
 		Set(MoveMap, Pos.x - 1, Pos.y - 2)
 		Set(MoveMap, Pos.x + 1, Pos.y + 2)
@@ -865,11 +865,11 @@ void Knight::CalcMove(Game* game)
 		Set(MoveMap, Pos.x + 2, Pos.y - 1)
 
 }
-//fil için
+//fil icin
 void Bishop::CalcMove(Game* game)
 {
 	Piece::CalcMove(game);
-	//Kale ile aynı işlem sadece yön değişiyor.
+	//Kale ile ayni islem sadece yon degisiyor.
 	int i = 1;
 	while (1)
 	{
@@ -897,11 +897,11 @@ void Bishop::CalcMove(Game* game)
 	}
 
 }
-//Vezir için
+//Vezir icin
 void Queen::CalcMove(Game* game)
 {
 	Piece::CalcMove(game);
-	//Kale ve fildeki kodların birleşimi
+	//Kale ve fildeki kodlarin birlesimi
 	int i = 1;
 	while (1)
 	{
@@ -954,11 +954,11 @@ void Queen::CalcMove(Game* game)
 
 
 }
-//Şah için
+//Sah icin
 void King::CalcMove(Game* game)
 {
 	Piece::CalcMove(game);
-	//ilk olarak gidebileceği yerleri eğer kendi takımından taş yok ve harita dışında değilse işaretliyoruz.
+	//ilk olarak gidebilecegi yerleri eger kendi takimindan tas yok ve harita disinda degilse isaretliyoruz.
 	Set(MoveMap, Pos.x - 1, Pos.y + 1);
 	Set(MoveMap, Pos.x, Pos.y + 1);
 	Set(MoveMap, Pos.x + 1, Pos.y + 1);
@@ -971,7 +971,7 @@ void King::CalcMove(Game* game)
 	Set(MoveMap, Pos.x, Pos.y - 1);
 	Set(MoveMap, Pos.x + 1, Pos.y - 1);
 
-	//Daha sonra rengine göre eğer karşı takımın danger mapında gidebiliceği yer doğru ise movemapda false yapıyoruz.
+	//Daha sonra rengine gore eger karsi takimin danger mapinda gidebilicegi yer dogru ise movemapda false yapiyoruz.
 	if (Color == Side_White)
 	{
 
@@ -1002,14 +1002,14 @@ void King::CalcMove(Game* game)
 
 	}
 	//NOTE Checking for Castling.
-	// Rok için kontrol
-	if (Bonus)//eğer bonusu var yani haraket etmediyse.
+	// Rok icin kontrol
+	if (Bonus)//eger bonusu var yani haraket etmediyse.
 	{
 		if (Color == Side_White)
 		{
-			//Kısa rok için
-			//Burada Rok çok özel bir durum olduğu için makro kullanmadım.
-			//Rok için gideceği yerler tehdit altında değil ise, gideceği yerlerde taş yok ve en sağdaki kaleninde bonusu var ise.
+			//Kisa rok icin
+			//Burada Rok cok ozel bir durum oldugu icin makro kullanmadim.
+			//Rok icin gidecegi yerler tehdit altinda degil ise, gidecegi yerlerde tas yok ve en sagdaki kaleninde bonusu var ise.
 			if (!game->PieceC.WhiteDangerMap[Pos.y][Pos.x] &&
 				!game->PieceC.WhiteDangerMap[Pos.y][Pos.x + 1] &&
 				!game->PieceC.WhiteDangerMap[Pos.y][Pos.x + 2] &&
@@ -1029,7 +1029,7 @@ void King::CalcMove(Game* game)
 
 
 			}
-			//Bu sefer sol için bakıyoruz. Yani Uzun rok.
+			//Bu sefer sol icin bakiyoruz. Yani Uzun rok.
 			if (!game->PieceC.WhiteDangerMap[Pos.y][Pos.x] &&
 				!game->PieceC.WhiteDangerMap[Pos.y][Pos.x - 1] &&
 				!game->PieceC.WhiteDangerMap[Pos.y][Pos.x - 2] &&
@@ -1282,15 +1282,15 @@ void King::CalcDanger(Game* game)
 
 int MateDummy::Test(Game* game, int x, int y)
 {
-	//şah matı test etmek için.
+	//sah mati test etmek icin.
 
-	if (game->PieceC.PlaceMap[y][x].Color == Side_Empty)//Eğer test edilecek karede taş yoksa direk oraya taşı koyuyoruz.
+	if (game->PieceC.PlaceMap[y][x].Color == Side_Empty)//Eger test edilecek karede tas yoksa direk oraya tasi koyuyoruz.
 	{
 		Pos.y = y;
 		Pos.x = x;
 		return -1;
 	}
-	else // varsa taşı oraya koyuyoruz daha sonra orda olan taşın yok olma flagini true yapıyoruz. ve taşın indexini dönüyoruz.
+	else // varsa tasi oraya koyuyoruz daha sonra orda olan tasin yok olma flagini true yapiyoruz. ve tasin indexini donuyoruz.
 	{
 		TilePos TestPos = { x,y };
 		for (int i = 0; i < game->PieceCount; i++)
@@ -1312,18 +1312,18 @@ int MateDummy::Test(Game* game, int x, int y)
 
 void King::Check(Game* game)
 {
-	IsCheck = true; // şah olduğunu doğru yapıroruz.
+	IsCheck = true; // sah oldugunu dogru yapiroruz.
 	IsTesting = true;
-	Mate(game);// mat var mı diye kotnrol ediyoruz.
+	Mate(game);// mat var mi diye kotnrol ediyoruz.
 	IsTesting = false;
 }
-//Şah Mat
+//Sah Mat
 void King::Mate(Game* game)
 {
 	bool CanMove = false;
 	game->PieceC.CalcMoveMap(game);
 	bool IsMate = true;
-	//şahın gidebileceği yer var mı diye bakıyoruz.
+	//sahin gidebilecegi yer var mi diye bakiyoruz.
 	for (int j = 0; j < 8; j++)
 	{
 		for (int i = 0; i < 8; i++)
@@ -1340,14 +1340,14 @@ void King::Mate(Game* game)
 		}
 	}
 
-	//Şahın gidebileceği yer yok ise bidahaki tur için şah olmayan bir varyasyon arıyoruz.
+	//Sahin gidebilecegi yer yok ise bidahaki tur icin sah olmayan bir varyasyon ariyoruz.
 	if (CanMove == false)
 	{
 		for (int a = 0; a < game->PieceCount; a++)
 		{
 			if (game->PieceC.Pieces[a]->Type == Type_Dummy) // Dummyi buluyoruz.
 			{
-				//dummyi uyandırıyoruz.
+				//dummyi uyandiriyoruz.
 				game->PieceC.Pieces[a]->IsDestroyed = false;
 				game->PieceC.Pieces[a]->Color = Color;
 				MateDummy* dummy = (MateDummy*)game->PieceC.Pieces[a];
@@ -1355,8 +1355,8 @@ void King::Mate(Game* game)
 				if (Color == Side_White)
 				{
 
-					//MoveMaptaki tüm yerleri test ediyoruz. Yan movemaptaki tüm yerlere tek tek dummy koyuyoruz ve gene şah mı diye kontrol ediyoruz.
-					//Eğer şah olmayan bir varyasyon bulursak mat olmadığını anlıyoruz.
+					//MoveMaptaki tum yerleri test ediyoruz. Yan movemaptaki tum yerlere tek tek dummy koyuyoruz ve gene sah mi diye kontrol ediyoruz.
+					//Eger sah olmayan bir varyasyon bulursak mat olmadigini anliyoruz.
 					for (int j = 0; j < 8; j++)
 					{
 						for (int i = 0; i < 8; i++)
@@ -1369,7 +1369,7 @@ void King::Mate(Game* game)
 								{
 									IsMate = false;
 								}
-								if (TestItem != -1) // Eğer movemaptaki koyduğumuz yerde taş var ise yok olma flagini true yapmıştık şimdi false yapıyoruz.
+								if (TestItem != -1) // Eger movemaptaki koydugumuz yerde tas var ise yok olma flagini true yapmistik simdi false yapiyoruz.
 								{
 									game->PieceC.Pieces[TestItem]->IsDestroyed = false;
 								}
@@ -1412,10 +1412,10 @@ void King::Mate(Game* game)
 			}
 		}
 	}
-	//Daha sonra bozduğumuz bir şey olabilir diye tüm mapları yeniliyoruz.
+	//Daha sonra bozdugumuz bir sey olabilir diye tum maplari yeniliyoruz.
 	game->PieceC.CalcAll(game);
 
-	if (IsMate)// Daha sonra çıkan sonucu oyun durumuna eşitliyoruz.
+	if (IsMate)// Daha sonra cikan sonucu oyun durumuna esitliyoruz.
 	{
 		if (Color == Side_White)
 		{
@@ -1448,7 +1448,7 @@ void King::Mate(Game* game)
 
 }
 
-void PieceController::CalcAll(Game* game) // Her şeyi tek bir fonksiyonda tutmak için
+void PieceController::CalcAll(Game* game) // Her seyi tek bir fonksiyonda tutmak icin
 {
 	CalcPiecePositions(game);
 	CalcMoveMap(game);
@@ -1462,23 +1462,23 @@ void PieceController::CalcAll(Game* game) // Her şeyi tek bir fonksiyonda tutma
 Move Piece::Move(TilePos Pos2, Game* game)
 {
 	//	game->PieceC.CalcMoveMap(game);
-	if (MoveMap[Pos2.y][Pos2.x])//Eğer gideceği yer taşın MoveMapında true ise
+	if (MoveMap[Pos2.y][Pos2.x])//Eger gidecegi yer tasin MoveMapinda true ise
 	{
-		if (game->PieceC.PlaceMap[Pos2.y][Pos2.x].Color != Side_Empty)//Eğer gideceği yer boş değil ise
+		if (game->PieceC.PlaceMap[Pos2.y][Pos2.x].Color != Side_Empty)//Eger gidecegi yer bos degil ise
 		{
 			for (int i = 0; i < game->PieceCount; i++)
 			{
 				if (game->PieceC.Pieces[i]->IsDestroyed == true)
 					continue;
 
-				if (i != PieceIndex && game->PieceC.Pieces[i]->Pos == Pos2)// gideceği yerdeki taşı bul.
+				if (i != PieceIndex && game->PieceC.Pieces[i]->Pos == Pos2)// gidecegi yerdeki tasi bul.
 				{
-					if (game->PieceC.Pieces[i]->Color != Color)//Eğer senin takımından değil ise yok et.
+					if (game->PieceC.Pieces[i]->Color != Color)//Eger senin takimindan degil ise yok et.
 					{
 						game->PieceC.Pieces[i]->Destroy();
 
 					}
-					else //senin takımındansa MoveMap hesaplamada bir sıkıntı vardır 
+					else //senin takimindansa MoveMap hesaplamada bir sikinti vardir 
 					{
 						std::cout << "Move Map Error!!!" << std::endl;
 						return Move_SameColor;
@@ -1494,21 +1494,23 @@ Move Piece::Move(TilePos Pos2, Game* game)
 
 		TilePos Test = Pos;
 		Pos = Pos2;
+		Condution cond = game->Cond;
 		//NOTE Imposible move stuff
 		if (game->PieceC.CalcDangerMap(game, false) == Color)
 		{
 			Pos = Test;
 			game->PieceC.CalcDangerMap(game, false);
+			game->Cond = cond;
 			return Move_Imposible;
 
 
 		}
 
 		//NOTE Castling Stuff
-		//Rok için
-		if (Type == Type_King) // eğer haraket eden şah ise
+		//Rok icin
+		if (Type == Type_King) // eger haraket eden sah ise
 		{
-			//Rok structlarını kontrol ediyoruz. Eğer rok var ve gittiği yerde rokun belirttiği yer ise kalenin yerinide değiştiriyoruz.
+			//Rok structlarini kontrol ediyoruz. Eger rok var ve gittigi yerde rokun belirttigi yer ise kalenin yerinide degistiriyoruz.
 			King* king = (King*)this;
 			if (king->Cast[0].IsValid &&
 				king->Cast[0].Pos == Pos2)
@@ -1525,10 +1527,10 @@ Move Piece::Move(TilePos Pos2, Game* game)
 		}
 
 		//NOTE capture while passing stuff.
-		//Geçerken alma için
-		if (Type == Type_Pawn)//Eğer haraket eden piyon ise
+		//Gecerken alma icin
+		if (Type == Type_Pawn)//Eger haraket eden piyon ise
 		{
-			// geçerken alma strcutlarını kontrol ediyoruz eğer biri doğru ve gittiğimiz yerde onun istediği yer ise arkasına geçtiğimiz taşı yok ediyoruz.
+			// gecerken alma strcutlarini kontrol ediyoruz eger biri dogru ve gittigimiz yerde onun istedigi yer ise arkasina gectigimiz tasi yok ediyoruz.
 			Pawn* pawn = (Pawn*)this;
 			if (pawn->CWP[0].IsValid == true && pawn->CWP[0].Pos == Pos2)
 			{
@@ -1539,9 +1541,9 @@ Move Piece::Move(TilePos Pos2, Game* game)
 				game->PieceC.Pieces[pawn->CWP[1].PawnIndex]->Destroy();
 			}
 
-			if ((Pos2.y - Test.y == -2 || Pos2.y - Test.y == 2) && Bonus == true)//2 kare açıldı ise 1 turluğuna
+			if ((Pos2.y - Test.y == -2 || Pos2.y - Test.y == 2) && Bonus == true)//2 kare acildi ise 1 turluguna
 			{
-				pawn->CanCapturedWhilePassing = true;//geçerken almaya uygundur diye işaretliyoruz.
+				pawn->CanCapturedWhilePassing = true;//gecerken almaya uygundur diye isaretliyoruz.
 			}
 
 
@@ -1549,9 +1551,9 @@ Move Piece::Move(TilePos Pos2, Game* game)
 
 
 		}
-		Bonus = false;//Haraket eder ise bonusu kaldırıyoruz.
+		Bonus = false;//Haraket eder ise bonusu kaldiriyoruz.
 		game->Cond = Condution_Empty;
-		game->PieceC.CalcAll(game);//Mapları hesaplıyoruz.
+		game->PieceC.CalcAll(game);//Maplari hesapliyoruz.
 
 
 
@@ -1566,7 +1568,7 @@ Move Piece::Move(TilePos Pos2, Game* game)
 
 }
 
-void Piece::Destroy() //bunu ilerde yok ederke farklı bir şeyler yapmak istersem diye koydum.
+void Piece::Destroy() //bunu ilerde yok ederke farkli bir seyler yapmak istersem diye koydum.
 {
 	IsDestroyed = true;
 }
@@ -1574,10 +1576,10 @@ void Piece::Destroy() //bunu ilerde yok ederke farklı bir şeyler yapmak isters
 
 
 
-//Takımların MoveMaplarını Hesaplama
+//Takimlarin MoveMaplarini Hesaplama
 void PieceController::CalcMoveMap(Game* game)
 {
-	//İlk olarak tüm haritaları temizliyoruz.
+	//Ilk olarak tum haritalari temizliyoruz.
 	for (int j = 0; j < 8; j++)
 		for (int i = 0; i < 8; i++)
 		{
@@ -1587,11 +1589,11 @@ void PieceController::CalcMoveMap(Game* game)
 
 	for (int a = 0; a < game->PieceCount; a++)
 	{
-		if (game->PieceC.Pieces[a]->IsDestroyed == true) //Eğer yok olmadı ise
+		if (game->PieceC.Pieces[a]->IsDestroyed == true) //Eger yok olmadi ise
 			continue;
-		Pieces[a]->CalcMove(game); // Hareketini hesaplatıyoruz.
+		Pieces[a]->CalcMove(game); // Hareketini hesaplatiyoruz.
 
-		if (Pieces[a]->Color == Side_White) // Daha sonra takımına göre Movemap ile or yapıyoruz böylelikle tüm mapları birleştirmiş oluyoruz.
+		if (Pieces[a]->Color == Side_White) // Daha sonra takimina gore Movemap ile or yapiyoruz boylelikle tum maplari birlestirmis oluyoruz.
 		{
 
 			for (int j = 0; j < 8; j++)
@@ -1613,10 +1615,10 @@ void PieceController::CalcMoveMap(Game* game)
 			}
 		}
 	}
-	//Pat için yani berabere
+	//Pat icin yani berabere
 	bool IsDraw = true;
 
-	if (game->Turn == Side_White) // Eğer tur beyazda ise bidahki tur siyahtatır. Siyahın MoveMapındaki tüm yerler false ise
+	if (game->Turn == Side_White) // Eger tur beyazda ise bidahki tur siyahtatir. Siyahin MoveMapindaki tum yerler false ise
 	{
 		for (int j = 0; j < 8; j++)
 			for (int i = 0; i < 8; i++)
@@ -1630,14 +1632,14 @@ void PieceController::CalcMoveMap(Game* game)
 	{
 		for (int j = 0; j < 8; j++)
 			for (int i = 0; i < 8; i++)
-				if (WhiteMoveMap[j][i] == true) // Siyah içinde aynı şey.
+				if (WhiteMoveMap[j][i] == true) // Siyah icinde ayni sey.
 				{
 					IsDraw = false;
 				}
 	}
 
 
-	if (IsDraw) //Pattır
+	if (IsDraw) //Pattir
 	{
 		game->Cond = Condution_Draw;
 		game->EndGame();
@@ -1648,7 +1650,7 @@ void PieceController::CalcMoveMap(Game* game)
 }
 Side PieceController::CalcDangerMap(Game* game, bool IsLogging)
 {
-	//MoveMap ile aynı matıkta çalışıyor ilk kısmı.
+	//MoveMap ile ayni matikta calisiyor ilk kismi.
 	Side Result = Side_Empty;
 	for (int j = 0; j < 8; j++)
 		for (int i = 0; i < 8; i++)
@@ -1688,8 +1690,8 @@ Side PieceController::CalcDangerMap(Game* game, bool IsLogging)
 
 	}
 
-	//Haritayı hesapladıktan sonra şah var mı diye konrol ediyoruz.
-	//Eğer şah var ise Şah yiyen taşın Check fonksiyonunu çağırıyoruz.
+	//Haritayi hesapladiktan sonra sah var mi diye konrol ediyoruz.
+	//Eger sah var ise Sah yiyen tasin Check fonksiyonunu cagiriyoruz.
 	//NOTE Cheking for is king Checked
 
 	for (int a = 0; a < game->PieceCount; a++)
@@ -1702,12 +1704,12 @@ Side PieceController::CalcDangerMap(Game* game, bool IsLogging)
 
 			if (Pieces[a]->Color == Side_White)
 			{
-				if (WhiteDangerMap[Pieces[a]->Pos.y][Pieces[a]->Pos.x]) // Şah için kontrol
+				if (WhiteDangerMap[Pieces[a]->Pos.y][Pieces[a]->Pos.x]) // Sah icin kontrol
 				{
 
 					Result = Side_White;
 					game->Cond = Condution_WhiteCheck;
-					if (test->IsTesting == false && IsLogging) // Burası stack overflowu engellemek için
+					if (test->IsTesting == false && IsLogging) // Burasi stack overflowu engellemek icin
 					{
 						test->Check(game);
 					}
@@ -1745,7 +1747,7 @@ Side PieceController::CalcDangerMap(Game* game, bool IsLogging)
 
 	return Result;
 }
-//Taşların yerini hesaplamak için.
+//Taslarin yerini hesaplamak icin.
 void PieceController::CalcPiecePositions(Game* game)
 {
 	//ilk olarak temizliyoruz.
@@ -1758,12 +1760,12 @@ void PieceController::CalcPiecePositions(Game* game)
 
 
 		}
-	//Daha sonra tüm taşlar için
+	//Daha sonra tum taslar icin
 	for (int i = 0; i < game->PieceCount; i++)
 	{
-		if (game->PieceC.Pieces[i]->IsDestroyed == true)//Eğer yok olmadı ise
+		if (game->PieceC.Pieces[i]->IsDestroyed == true)//Eger yok olmadi ise
 			continue;
-		//Placemapı dolduruyoruz.
+		//Placemapi dolduruyoruz.
 		TilePos Pos = Pieces[i]->Pos;
 
 		PlaceMap[Pos.y][Pos.x].Color = Pieces[i]->Color;
@@ -1774,33 +1776,33 @@ void PieceController::CalcPiecePositions(Game* game)
 	}
 }
 
-inline bool PieceController::CheckSetFonc(bool Map[8][8], int x, int y, Side color, bool IsMoveMap) // MoveMap ve DangerMap için sorgular.
+inline bool PieceController::CheckSetFonc(bool Map[8][8], int x, int y, Side color, bool IsMoveMap) // MoveMap ve DangerMap icin sorgular.
 {
-	if (IsMoveMap)//MoveMap için
+	if (IsMoveMap)//MoveMap icin
 	{
 
-		if (PlaceMap[y][x].Color == Side_Empty  //Boş ve sınırlar içerisinde ise direk işaretliyoruz.
+		if (PlaceMap[y][x].Color == Side_Empty  //Bos ve sinirlar icerisinde ise direk isaretliyoruz.
 			&& x >= 0 && x < 8 && y >= 0 && y < 8)
 		{
 
 			Map[y][x] = true;
 			return true;
 		}
-		else if (x < 0 || x > 7 || y < 0 || y > 7) // Sınırlar içinde değil ise çıkıyoruz.
+		else if (x < 0 || x > 7 || y < 0 || y > 7) // Sinirlar icinde degil ise cikiyoruz.
 			return false;
-		else if (PlaceMap[y][x].Color != color) // Gideceği yerdeki taş karşı takımda ise true yapıp çıkıyouruz
+		else if (PlaceMap[y][x].Color != color) // Gidecegi yerdeki tas karsi takimda ise true yapip cikiyouruz
 		{
 			Map[y][x] = true;
 			return false;
 		}
-		else // Değil ise direk çıkıyoruz.
+		else // Degil ise direk cikiyoruz.
 		{
 			return false;
 		}
 	}
-	else // DangerMap için
+	else // DangerMap icin
 	{
-		//MoveMap ile yaklaşık olarak aynı fakat bunda eğer tehtit ettiğimiz taş şah ise onu yok sayıyoruz çünkü şahların arkasınıda tehdit ederiz.
+		//MoveMap ile yaklasik olarak ayni fakat bunda eger tehtit ettigimiz tas sah ise onu yok sayiyoruz cunku sahlarin arkasinida tehdit ederiz.
 		if ((PlaceMap[y][x].Color == Side_Empty ||
 			(PlaceMap[y][x].Type == Type_King && PlaceMap[y][x].Color != Side_Empty && PlaceMap[y][x].Color != color))
 			&& x >= 0 && x < 8 && y >= 0 && y < 8)
@@ -1826,7 +1828,7 @@ inline bool PieceController::CheckSetFonc(bool Map[8][8], int x, int y, Side col
 
 namespace Tools
 {
-	//Diskten texture yüklemek için.
+	//Diskten texture yuklemek icin.
 	void CreateTexture(SDL_Renderer* renderer, const char* IMGDir, SDL_Texture** texture)
 	{
 
@@ -1847,8 +1849,8 @@ namespace Tools
 
 	void AlignPieces(Game* game)
 	{
-		// Oyundaki taşları oluşturup yerlerine diziyoruz.
-		// Hangi rengin aşağıda olcağını Game.h dosyasındaki ColorAtBottom ile seçebilirsiniz.
+		// Oyundaki taslari olusturup yerlerine diziyoruz.
+		// Hangi rengin asagida olcagini Game.h dosyasindaki ColorAtBottom ile secebilirsiniz.
 		//Piyon
 		for (int i = 0; i < 8; i++)
 		{
@@ -1921,7 +1923,7 @@ namespace Tools
 			Queen* QueenW = new Queen(game, TilePos(3, 7), Side_Black, Type_Queen);
 			Queen* QueenB = new Queen(game, TilePos(3, 0), Side_White, Type_Queen);
 		}
-		//Şah
+		//Sah
 		if (ColorAtBottom == Side_White)
 		{
 			King* KingW = new King(game, TilePos(4, 0), Side_Black, Type_King);
@@ -1934,10 +1936,10 @@ namespace Tools
 			King* KingW = new King(game, TilePos(4, 7), Side_Black, Type_King);
 			King* KingB = new King(game, TilePos(4, 0), Side_White, Type_King);
 		}
-		//Şah mat hesaplamada kullanmak için kukla
+		//Sah mat hesaplamada kullanmak icin kukla
 		MateDummy* Dummy = new MateDummy(game, TilePos(-1, -1), Side_Empty, Type_Dummy);
 
-		//Tüm oyun haritalarını hesaplıyoruz.
+		//Tum oyun haritalarini hesapliyoruz.
 		game->PieceC.CalcAll(game);
 
 
