@@ -1503,6 +1503,7 @@ Move Piece::Move(TilePos Pos2, Game* game)
 
 
 		}
+
 		//NOTE Castling Stuff
 		//Rok için
 		if (Type == Type_King) // eğer haraket eden şah ise
