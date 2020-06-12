@@ -255,9 +255,13 @@ void Board::Init(SDL_Renderer* renderer)
 	// Bunlari kullanmak icin Game.h dosyasindaki MOVEMAP veya DANGERMAP definelarini comment out yapin.
 	Tools::CreateTexture(renderer, "Images/NewBlackRect.png", &Rects[0]);
 	Tools::CreateTexture(renderer, "Images/NewWhiteRect.png", &Rects[1]);
+#ifdef DEBUG
 	Tools::CreateTexture(renderer, "Images/WhiteExclamation.png", &Debugs[0]);
 	Tools::CreateTexture(renderer, "Images/BlackExclamation.png", &Debugs[1]);
 	Tools::CreateTexture(renderer, "Images/RedExclamation.png", &Debugs[2]);
+#endif // DEBUG
+
+
 
 	//Tahtanin harf ve yazilari burada SDL_TTF kullanabilirdim fakat 
 	//yazacagim yazi az oldugu icin ekstra bir kutuphane eklemek istemedim.
