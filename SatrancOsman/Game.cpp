@@ -611,6 +611,7 @@ void Pawn::CalcMove(Game* game)
 		ReverseCheckSet(MoveMap, game->PieceC.PlaceMap, Pos.x + 1, Pos.y - 1);// Sag ustte tas varsa true yap
 		ReverseCheckSet(MoveMap, game->PieceC.PlaceMap, Pos.x - 1, Pos.y - 1);// Sol ustte tas varsa true yap
 
+		//Burda sadece 2 işlem olduğu için macro yapmak istemedim.
 		//Bu bolgede Gecerken almayi kontrol ediyoruz.
 		//Eger saginda tas varsa , karsi takimdansa ve turu piyonsa
 #pragma region Capture While Passing
@@ -1829,6 +1830,7 @@ inline bool PieceController::CheckSetFonc(bool Map[8][8], int x, int y, Side col
 namespace Tools
 {
 	//Diskten texture yuklemek icin.
+	//Bunu bir onceki oyunumdan aldim. Memory leake cok neden olmustu bu fonksiyon gecen oyunumda baya ugrasip cozmustum.
 	void CreateTexture(SDL_Renderer* renderer, const char* IMGDir, SDL_Texture** texture)
 	{
 
